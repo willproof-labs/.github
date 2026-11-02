@@ -1,0 +1,67 @@
+[project]
+name = "willproof-org-tools"
+version = "0.1.0"
+description = "Shared conventions and tooling of the WillProof Labs organization."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11,<3.14"
+authors = [{ name = "WillProof Labs contributors" }]
+# The tools use the standard library only, so any project can copy them as they are.
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=9,<10",
+    "ruff>=0.16,<0.17",
+    "mypy>=2,<3",
+    "pyyaml>=6,<7",       # tests that validate the workflow and issue form files
+    "types-PyYAML>=6",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0,<3"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
+
+[tool.ruff]
+line-length = 99
+target-version = "py311"
+src = ["tools", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "D", "S", "N", "SIM", "PTH", "RET", "C90"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["tools", "tests"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "D"]
+# These tools exist to run git and gh, always with argument lists, never through a shell.
+"tools/**" = ["S603", "S607"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+files = ["tools", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["yaml"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
