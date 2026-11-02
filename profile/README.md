@@ -7,9 +7,14 @@ WillProof Labs is an independent lab for AI that works **where the cloud cannot 
 first choice**: on your own devices, under real constraints, with the quality the use case
 deserves. It sits at the border between value-driven project management and R&D.
 
-We are craftspeople at heart. We work with what we have, and a good knife: small
-models, modest hardware, careful measurements, and a lot of curiosity. When something
-works, we want to know why; when it does not, we want to know that too.
+We are craftspeople at heart. Much of AI bets on ever-larger foundation models running in
+distant data centers. That works, until it cannot: a connection gets cut or attacked,
+sensitive data must not leave the building, a public body is not allowed to use a foreign
+service, or the bill simply does not add up. Then there is no choice but to work with what
+we have: small models, modest hardware, careful measurements and a lot of curiosity. Our
+bet is that real value can still be found there, for economic, practical and ethical
+reasons alike. When something works, we want to know why; when it does not, we want to
+know that too.
 
 > **Will → Proof → Value → Scale**
 > We state the intent before writing code, we deploy nothing without proof, we keep only
@@ -55,9 +60,15 @@ cloud ne peut pas être le premier choix** : sur vos propres appareils, sous des
 contraintes réelles, avec le niveau de qualité que l'usage exige. Il se situe à la
 frontière entre la gestion de projet pilotée par la valeur et la R&D.
 
-Nous sommes des artisans dans l'âme. On travaille avec ce qu'on a, et un bon couteau :
-des petits modèles, du matériel modeste, des mesures soignées et beaucoup de curiosité.
-Quand quelque chose marche, on veut comprendre pourquoi ; quand ça ne marche pas, aussi.
+Nous sommes des artisans dans l'âme. Une grande partie de l'IA mise sur des modèles de
+fondation toujours plus gros, hébergés dans des datacenters lointains. Ça marche, jusqu'au
+jour où ce n'est plus possible : une connexion se coupe ou se fait attaquer, des données
+sensibles ne doivent pas sortir des murs, un service public n'a pas le droit de passer par
+un prestataire étranger, ou la facture ne tient tout simplement pas. Dans ces cas-là, on
+n'a pas le choix : il faut travailler avec les moyens du bord. Des petits modèles, du
+matériel modeste, des mesures soignées et beaucoup de curiosité. Notre pari : on peut quand
+même en tirer de la valeur, pour des raisons économiques, pragmatiques et éthiques. Quand
+quelque chose marche, on veut comprendre pourquoi ; quand ça ne marche pas, aussi.
 
 > **Will → Proof → Value → Scale**
 > On pose l'intention avant d'écrire du code, on ne déploie rien sans preuve, on ne garde
