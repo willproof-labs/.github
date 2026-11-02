@@ -17,6 +17,7 @@ reasons alike. When something works, we want to know why; when it does not, we w
 know that too.
 
 > **Will → Proof → Value → Scale**
+>
 > We state the intent before writing code, we deploy nothing without proof, we keep only
 > what creates value, and we scale only as a last resort.
 
@@ -71,6 +72,7 @@ même en tirer de la valeur, pour des raisons économiques, pragmatiques et éth
 quelque chose marche, on veut comprendre pourquoi ; quand ça ne marche pas, aussi.
 
 > **Will → Proof → Value → Scale**
+> 
 > On pose l'intention avant d'écrire du code, on ne déploie rien sans preuve, on ne garde
 > que ce qui crée de la valeur, et on ne passe à l'échelle qu'en dernier ressort.
 
