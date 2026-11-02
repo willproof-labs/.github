@@ -1,0 +1,38 @@
+# Reusable workflow: commit messages, branch name and test-first order of a pull request.
+# Called by every repository of the organization:
+#   jobs:
+#     conventions:
+#       uses: willproof-labs/.github/.github/workflows/commit-conventions.yml@main
+# The rules live in tools/commit_conventions.py (see CONTRIBUTING.md).
+name: Commit conventions
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # every commit of the pull request
+          persist-credentials: false
+      - uses: actions/checkout@v5
+        with:
+          repository: willproof-labs/.github
+          path: .willproof-org
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Check commits and branch name
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          BRANCH: ${{ github.head_ref }}
+        run: python .willproof-org/tools/commit_conventions.py --range "$BASE..$HEAD" --branch "$BRANCH"

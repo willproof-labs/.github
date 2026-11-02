@@ -1,0 +1,28 @@
+# Reusable workflow: search the whole git history for secrets with gitleaks.
+# The scanner runs in a container without network access, on a read-only copy.
+#   jobs:
+#     secrets:
+#       uses: willproof-labs/.github/.github/workflows/gitleaks.yml@main
+name: Secret scan
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks
+        # safe.directory: the checkout belongs to another user than the container's.
+        run: >
+          docker run --rm --network none -v "${PWD}:/repo:ro"
+          -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*'
+          ghcr.io/gitleaks/gitleaks:v8.28.0 git /repo --redact --verbose

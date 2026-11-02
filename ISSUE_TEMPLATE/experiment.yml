@@ -1,0 +1,22 @@
+name: Experiment
+description: A question to answer with measurements / Une question à trancher par la mesure
+labels: ["type:experiment"]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis / Hypothèse
+      placeholder: A lexical engine reaches 80 % of the quality of a 3B model for 1 % of its energy.
+    validations:
+      required: true
+  - type: textarea
+    id: protocol
+    attributes:
+      label: Protocol / Protocole
+      description: Data, tools, machines, repetitions, and what would prove the hypothesis wrong. / Données, outils, machines, répétitions, et ce qui réfuterait l'hypothèse.
+    validations:
+      required: true
+  - type: textarea
+    id: results
+    attributes:
+      label: Results and decision / Résultats et décision

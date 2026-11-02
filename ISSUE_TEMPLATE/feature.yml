@@ -1,0 +1,23 @@
+name: Feature
+description: A new capability / Une nouvelle fonctionnalité
+labels: ["type:feature"]
+body:
+  - type: textarea
+    id: value
+    attributes:
+      label: Value / Valeur
+      description: Who needs it, and what changes for them? / Pour qui, et qu'est-ce que ça change pour eux ?
+    validations:
+      required: true
+  - type: textarea
+    id: existing
+    attributes:
+      label: Existing tools / Outils existants
+      description: We only build what does not exist. Which tool already does part of it? / On ne construit que ce qui n'existe pas. Quel outil en fait déjà une partie ?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria and first test / Critères d'acceptation et premier test
+      description: The first failing test you would write. / Le premier test qui échoue que vous écririez.

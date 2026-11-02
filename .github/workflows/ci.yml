@@ -1,0 +1,40 @@
+# CI of this repository: its own tools are tested like any WillProof Labs project.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  conventions:
+    uses: ./.github/workflows/commit-conventions.yml
+
+  secrets:
+    uses: ./.github/workflows/gitleaks.yml
+
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install Poetry
+        run: pipx install "poetry==2.4.3"
+      - name: Install dependencies
+        run: |
+          poetry check --lock
+          poetry install --no-interaction
+      - name: Lint, format, types, tests
+        run: |
+          poetry run ruff check .
+          poetry run ruff format --check .
+          poetry run mypy
+          poetry run pytest

@@ -1,0 +1,6 @@
+{
+  "name": "WillProof Python CI",
+  "description": "Commit conventions, secret scan, and lint, types and tests on three systems for a Poetry project.",
+  "categories": ["Python"],
+  "filePatterns": ["pyproject.toml$"]
+}

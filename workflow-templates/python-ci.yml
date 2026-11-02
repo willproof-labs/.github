@@ -1,0 +1,51 @@
+# WillProof Labs CI for a Python project managed with Poetry.
+# Shared rules come from the organization's reusable workflows; the quality job is the
+# project's own. Offered in the "Actions > New workflow" tab of every repository.
+name: CI
+
+on:
+  push:
+    branches: [$default-branch]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  conventions:
+    uses: willproof-labs/.github/.github/workflows/commit-conventions.yml@main
+
+  secrets:
+    uses: willproof-labs/.github/.github/workflows/gitleaks.yml@main
+
+  quality:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install Poetry
+        run: pipx install "poetry==2.4.3"
+      - name: Install dependencies
+        run: |
+          poetry check --lock
+          poetry install --no-interaction
+      - name: Lint, format, types, tests
+        run: |
+          poetry run ruff check .
+          poetry run ruff format --check .
+          poetry run mypy
+          poetry run pytest
