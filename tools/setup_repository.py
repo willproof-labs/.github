@@ -2,7 +2,7 @@
 
 * merge policy: rebase only, so every commit of a pull request reaches ``main`` as it
   is and the test-first history stays visible; branches deleted after merge;
-* the shared labels of ``labels.toml``;
+* the shared labels of ``labels.toml``, plus the project's own (``--labels``);
 * for products, the ``willproof-product`` topic that lists them across the organization.
 
 Nothing changes without ``--apply``: by default the script prints the ``gh`` commands::
@@ -36,10 +36,13 @@ class Label:
     description: str
 
 
-def load_labels(path: Path) -> list[Label]:
-    """Read ``labels.toml``."""
-    with path.open("rb") as stream:
-        return [Label(**item) for item in tomllib.load(stream)["labels"]]
+def load_labels(*paths: Path) -> list[Label]:
+    """Read label files, e.g. the shared ``labels.toml`` then a project's own labels."""
+    labels: list[Label] = []
+    for path in paths:
+        with path.open("rb") as stream:
+            labels += [Label(**item) for item in tomllib.load(stream)["labels"]]
+    return labels
 
 
 class RepositorySetup:
@@ -105,11 +108,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Apply WillProof Labs repository settings.")
     parser.add_argument("--repo", required=True, help="owner/name")
     parser.add_argument("--product", action="store_true", help="add the product topic")
-    parser.add_argument("--labels", type=Path, default=LABELS_FILE)
+    parser.add_argument(
+        "--labels",
+        type=Path,
+        action="append",
+        default=[],
+        help="extra label file of the project (repeatable); the shared labels always apply",
+    )
     parser.add_argument("--apply", action="store_true", help="really change the repository")
     args = parser.parse_args(argv)
     setup = RepositorySetup(SubprocessGh(), print)
-    return setup.run(args.repo, load_labels(args.labels), args.product, args.apply)
+    labels = load_labels(LABELS_FILE, *args.labels)
+    return setup.run(args.repo, labels, args.product, args.apply)
 
 
 if __name__ == "__main__":
