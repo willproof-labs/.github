@@ -1,0 +1,41 @@
+# Seed of the "WillProof Lab" board: only what links projects or concerns the lab itself.
+# Each product has its own board; an issue can appear on both.
+#   python -m tools.bootstrap_project --repo willproof-labs/willproof \
+#       --title "WillProof Lab" --backlog project/lab-backlog.toml
+
+[[issues]]
+repo = "willproof-labs/willproof"
+title = "Challenge the value of willproof-runtime"
+labels = ["needs-decision"]
+body = """
+willproof-runtime was imagined to expose local models through an API, before Ollama and
+Docker Model Runner covered that need. Decide whether it still brings value of its own,
+should be merged into another repository, or archived.
+
+- [ ] list what Ollama, Docker Model Runner and llama-server already provide
+- [ ] list what is left that only WillProof needs
+- [ ] decision recorded as an ADR in willproof-core
+"""
+
+[[issues]]
+repo = "willproof-labs/willproof-experiments"
+title = "Lexical engine versus small language model: energy for 1,000 conversations"
+labels = ["type:experiment", "cross-project", "needs-hardware"]
+body = """
+Measured, not claimed: compare the lexical emotion-signal engine with a small language
+model on the same 1,000 conversations, on the same machine.
+
+- [ ] quality on the same evaluation set (F1 per emotion, trigger precision)
+- [ ] latency, memory, energy per 1,000 conversations, measured with edge-smith
+- [ ] report with the trade-off and its limits
+"""
+
+[[issues]]
+repo = "willproof-labs/willproof-playbooks"
+title = "Write the way-of-working playbook"
+labels = ["type:docs"]
+body = """
+The organization .github repository applies the conventions; the playbook explains them
+for people: issues first, branches and commits, test-driven development, Definition of
+Done, rebase merges, working with AI assistants, going public. In English and French.
+"""

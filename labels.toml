@@ -1,0 +1,57 @@
+# Labels shared by every repository of WillProof Labs, applied with tools.setup_repository.
+# Same names everywhere, so the lab board can filter across repositories.
+
+[[labels]]
+name = "type:bug"
+color = "d73a4a"
+description = "Something does not work as documented"
+
+[[labels]]
+name = "type:feature"
+color = "a2eeef"
+description = "A new capability"
+
+[[labels]]
+name = "type:experiment"
+color = "5319e7"
+description = "A question to answer with measurements"
+
+[[labels]]
+name = "type:security"
+color = "b60205"
+description = "Security or privacy hardening"
+
+[[labels]]
+name = "type:docs"
+color = "0075ca"
+description = "Documentation, in English and French"
+
+[[labels]]
+name = "type:chore"
+color = "cfd3d7"
+description = "Maintenance: dependencies, tooling, releases"
+
+[[labels]]
+name = "upstream"
+color = "0e8a16"
+description = "Contribution to, or issue in, a project we depend on"
+
+[[labels]]
+name = "cross-project"
+color = "1d76db"
+description = "Links several WillProof Labs projects"
+
+[[labels]]
+name = "needs-decision"
+color = "fbca04"
+description = "Blocked until a decision is taken"
+
+[[labels]]
+name = "needs-hardware"
+color = "f9d0c4"
+description = "Can only be done on real hardware"
+
+[[labels]]
+name = "good first issue"
+color = "7057ff"
+description = "Small and well delimited"
