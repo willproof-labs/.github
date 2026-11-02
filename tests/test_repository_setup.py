@@ -143,3 +143,16 @@ def test_the_lab_backlog_is_valid() -> None:
     for issue in backlog.issues:
         assert issue.repo, "lab issues always name their repository"
         assert set(issue.labels) <= labels, issue.title
+
+
+def test_a_project_can_add_its_own_labels_to_the_shared_ones(tmp_path: Path) -> None:
+    extra = tmp_path / "labels.toml"
+    extra.write_text(
+        '[[labels]]\nname = "area:engines"\ncolor = "c5def5"\ndescription = "Engines"\n',
+        encoding="utf-8",
+    )
+
+    labels = load_labels(ROOT / "labels.toml", extra)
+
+    names = [label.name for label in labels]
+    assert "type:bug" in names and "area:engines" in names
