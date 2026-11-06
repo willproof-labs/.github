@@ -16,6 +16,11 @@ automatically; it must stay **public** for that, and it contains nothing sensiti
 
 A repository that needs different rules simply adds its own file, which takes precedence.
 
+The shared workflows pin every action by commit SHA and the gitleaks image by digest, so a
+repository runs exactly the code that was reviewed. Dependabot proposes the updates of the
+actions; the gitleaks image is updated by hand, since Dependabot does not watch images started
+with `docker run`.
+
 ## Tools
 
 The tools use the Python standard library only.

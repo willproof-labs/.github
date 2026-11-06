@@ -17,6 +17,11 @@ automatiquement ; il doit rester **public** pour cela, et ne contient rien de se
 Un dépôt qui a besoin de règles différentes ajoute simplement son propre fichier, qui
 prend le dessus.
 
+Les workflows partagés épinglent chaque action par SHA de commit et l'image gitleaks par
+digest : un dépôt exécute exactement le code relu. Dependabot propose les mises à jour des
+actions ; l'image gitleaks se met à jour à la main, car Dependabot ne surveille pas les images
+lancées par `docker run`.
+
 ## Outils
 
 Les outils n'utilisent que la bibliothèque standard de Python.
