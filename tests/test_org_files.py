@@ -13,7 +13,13 @@ yaml = pytest.importorskip("yaml")
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS = ROOT / ".github" / "workflows"
-FIRST_PARTY = re.compile(r"^(actions|github)/[\w.-]+@(v\d+|[0-9a-f]{40})$")
+FIRST_PARTY = re.compile(r"^(actions|github)/[\w.-]+@[0-9a-f]{40}$")
+#: An action pinned by SHA keeps its version in a comment, which Dependabot updates.
+PINNED_LINE = re.compile(r"uses: (actions|github)/[\w.-]+@[0-9a-f]{40} # v\d+\.\d+\.\d+$")
+#: A container image named in a workflow, with its tag and optional digest.
+IMAGE = re.compile(
+    r"\b(?:ghcr\.io|docker\.io|quay\.io)/[\w./-]+(?::[\w.-]+)?(?:@sha256:[0-9a-f]{64})?"
+)
 _FENCE = re.compile(r"^```(\w*)\n(.*?)^```", re.MULTILINE | re.DOTALL)
 _HEADING = re.compile(r"^(#{1,6}) ", re.MULTILINE)
 
@@ -79,6 +85,38 @@ def test_workflows_are_read_only_and_first_party(path: Path) -> None:
             assert FIRST_PARTY.match(step["uses"]), step["uses"]
         if str(step.get("uses", "")).startswith("actions/checkout"):
             assert step["with"]["persist-credentials"] is False
+
+
+@pytest.mark.parametrize("path", all_workflows(), ids=lambda p: p.name)
+def test_actions_keep_their_version(path: Path) -> None:
+    """An action pinned by SHA names its version in a comment (#1).
+
+    Dependabot reads and updates that comment; a reader sees which release runs.
+    """
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for line in (line.strip() for line in lines):
+        if line.startswith(
+            ("uses: actions/", "- uses: actions/", "uses: github/", "- uses: github/")
+        ):
+            assert PINNED_LINE.search(line), line
+
+
+@pytest.mark.parametrize("path", all_workflows(), ids=lambda p: p.name)
+def test_images_are_pinned_by_digest(path: Path) -> None:
+    """A container image runs by digest, never by tag alone (#1).
+
+    A tag can be moved to other content; a digest cannot.
+    """
+    for image in IMAGE.findall(path.read_text(encoding="utf-8")):
+        assert "@sha256:" in image, image
+
+
+def test_dependabot_updates_actions_and_packages() -> None:
+    """Dependabot proposes updates of the pinned actions and the Python packages (#1)."""
+    config = load(ROOT / ".github" / "dependabot.yml")
+
+    ecosystems = {update["package-ecosystem"] for update in config["updates"]}
+    assert ecosystems >= {"github-actions", "pip"}
 
 
 @pytest.mark.parametrize("name", ["commit-conventions.yml", "gitleaks.yml"])
