@@ -119,6 +119,41 @@ def test_dependabot_updates_actions_and_packages() -> None:
     assert ecosystems >= {"github-actions", "pip"}
 
 
+def embedded_tool(workflow: dict[str, Any]) -> str:
+    """Return the script that a workflow writes with a ``<<'PY'`` here-document."""
+    for step in steps(workflow):
+        lines = str(step.get("run", "")).splitlines()
+        for start, line in enumerate(lines):
+            if line.rstrip().endswith("<<'PY'"):
+                end = lines.index("PY", start)
+                return "\n".join(lines[start + 1 : end]) + "\n"
+    return ""
+
+
+def test_conventions_skip_second_checkout() -> None:
+    """The conventions check never downloads this repository (#3).
+
+    A second checkout would fetch the tools from main, not from the version that the
+    calling repository pinned by SHA.
+    """
+    workflow = load(WORKFLOWS / "commit-conventions.yml")
+
+    for step in steps(workflow):
+        if str(step.get("uses", "")).startswith("actions/checkout"):
+            assert "repository" not in step.get("with", {}), step
+
+
+def test_embedded_tool_matches_source() -> None:
+    """The workflow carries an exact copy of tools/commit_conventions.py (#3).
+
+    The file stays the reference: the local commit-msg hook runs it. After changing it,
+    copy it into commit-conventions.yml between the ``<<'PY'`` and ``PY`` lines.
+    """
+    source = (ROOT / "tools" / "commit_conventions.py").read_text(encoding="utf-8")
+
+    assert embedded_tool(load(WORKFLOWS / "commit-conventions.yml")) == source
+
+
 @pytest.mark.parametrize("name", ["commit-conventions.yml", "gitleaks.yml"])
 def test_shared_workflows_are_reusable(name: str) -> None:
     assert "workflow_call" in triggers(load(WORKFLOWS / name))
