@@ -21,6 +21,13 @@ repository runs exactly the code that was reviewed. Dependabot proposes the upda
 actions; the gitleaks image is updated by hand, since Dependabot does not watch images started
 with `docker run`.
 
+`commit-conventions.yml` carries an exact copy of `tools/commit_conventions.py` instead of
+downloading it: a repository that pins the workflow also pins the rules it checks. The file
+stays the reference, used by the local hook; after changing it, copy it into the workflow
+between the `<<'PY'` and `PY` lines, a test checks that both are identical. `main` is
+protected by a ruleset (pull request and CI checks required, no force push, no deletion),
+since this repository drives the CI of every other one.
+
 ## Tools
 
 The tools use the Python standard library only.

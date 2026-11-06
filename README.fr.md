@@ -22,6 +22,13 @@ digest : un dépôt exécute exactement le code relu. Dependabot propose les mis
 actions ; l'image gitleaks se met à jour à la main, car Dependabot ne surveille pas les images
 lancées par `docker run`.
 
+`commit-conventions.yml` porte une copie exacte de `tools/commit_conventions.py` au lieu de
+la télécharger : un dépôt qui épingle le workflow épingle aussi les règles qu'il vérifie. Le
+fichier reste la référence, utilisée par le hook local ; après l'avoir modifié, recopiez-le
+dans le workflow entre les lignes `<<'PY'` et `PY`, un test vérifie que les deux sont
+identiques. `main` est protégée par un ruleset (pull request et vérifications de la CI
+obligatoires, ni force push ni suppression), car ce dépôt pilote la CI de tous les autres.
+
 ## Outils
 
 Les outils n'utilisent que la bibliothèque standard de Python.
