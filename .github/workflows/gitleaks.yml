@@ -1,5 +1,7 @@
 # Reusable workflow: search the whole git history for secrets with gitleaks.
 # The scanner runs in a container without network access, on a read-only copy.
+# The image is pinned by digest; Dependabot does not watch images started with docker run,
+# so update the version and digest by hand from https://github.com/gitleaks/gitleaks/releases.
 #   jobs:
 #     secrets:
 #       uses: willproof-labs/.github/.github/workflows/gitleaks.yml@main
@@ -16,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -25,4 +27,5 @@ jobs:
         run: >
           docker run --rm --network none -v "${PWD}:/repo:ro"
           -e GIT_CONFIG_COUNT=1 -e GIT_CONFIG_KEY_0=safe.directory -e GIT_CONFIG_VALUE_0='*'
-          ghcr.io/gitleaks/gitleaks:v8.28.0 git /repo --redact --verbose
+          ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+          git /repo --redact --verbose

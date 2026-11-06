@@ -1,0 +1,16 @@
+# Weekly update proposals. Each one is a pull request: CI runs, you review, you merge.
+# Actions are pinned by commit SHA: Dependabot updates the SHA and the version comment.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+  - package-ecosystem: pip # Dependabot handles Poetry projects under "pip"
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
