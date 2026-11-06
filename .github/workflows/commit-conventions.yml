@@ -3,7 +3,8 @@
 #   jobs:
 #     conventions:
 #       uses: willproof-labs/.github/.github/workflows/commit-conventions.yml@main
-# The rules live in tools/commit_conventions.py (see CONTRIBUTING.md).
+# The rules live in tools/commit_conventions.py (see CONTRIBUTING.md); the workflow carries an
+# exact copy, so that it never runs the tools of another version.
 name: Commit conventions
 
 on:
@@ -22,11 +23,6 @@ jobs:
         with:
           fetch-depth: 0 # every commit of the pull request
           persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: willproof-labs/.github
-          path: .willproof-org
-          persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.12"
@@ -35,4 +31,178 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
           BRANCH: ${{ github.head_ref }}
-        run: python .willproof-org/tools/commit_conventions.py --range "$BASE..$HEAD" --branch "$BRANCH"
+        # The tool is embedded so that it runs at the version of this workflow, never from main.
+        # tests/test_org_files.py checks that it stays an exact copy of tools/commit_conventions.py.
+        run: |
+          cat > "$RUNNER_TEMP/commit_conventions.py" <<'PY'
+          #!/usr/bin/env python3
+          """Check WillProof Labs commit conventions: messages, branch names and the TDD rule.
+
+          This file uses the standard library only, so projects can copy it as it is. It works in
+          two modes:
+
+          * as a git ``commit-msg`` hook, on one message, before the commit is created::
+
+                python commit_conventions.py .git/COMMIT_EDITMSG
+
+          * in continuous integration, on every commit of a pull request, plus its branch name::
+
+                python commit_conventions.py --range BASE..HEAD --branch feat/12-onnx-engine
+
+          Rules (see CONTRIBUTING.md of the organization):
+
+          1. The first line follows Conventional Commits: ``type(scope)!: summary``, 72 characters
+             at most, with one of the types below.
+          2. The message references its issue: ``Refs #12`` (or ``Closes`` / ``Fixes``).
+          3. In a pull request, a ``feat`` or ``fix`` commit comes after at least one ``test``
+             commit (test-driven development), unless it carries a ``TDD-Exempt: reason`` trailer.
+          4. Branches are named ``type/<issue number>-short-description``.
+          """
+
+          from __future__ import annotations
+
+          import argparse
+          import re
+          import subprocess
+          import sys
+          from collections.abc import Sequence
+          from dataclasses import dataclass
+          from pathlib import Path
+
+          TYPES = ("test", "feat", "fix", "refactor", "docs", "ci", "build", "chore", "perf")
+          MAX_HEADER = 72
+          _TYPE_GROUP = "|".join(TYPES)
+          _HEADER = re.compile(rf"^(?P<type>{_TYPE_GROUP})(\([a-z0-9-]+\))?!?: \S")
+          _REFERENCE = re.compile(r"^(Refs|Closes|Fixes) #\d+", re.MULTILINE)
+          _EXEMPTION = re.compile(r"^TDD-Exempt: \S", re.MULTILINE)
+          _BRANCH = re.compile(rf"^({_TYPE_GROUP})/\d+-[a-z0-9]+(-[a-z0-9]+)*$")
+          _EXEMPT_PREFIXES = ("Merge ", 'Revert "', "fixup! ", "squash! ", "amend! ")
+          _BOTS = ("dependabot[bot]", "github-actions[bot]")
+          _NEEDS_TEST = ("feat", "fix")
+
+
+          @dataclass(frozen=True)
+          class Commit:
+              """A commit as read from git."""
+
+              sha: str
+              author: str
+              message: str
+
+              @property
+              def type(self) -> str | None:
+                  """The Conventional Commits type of the commit, if its header has one."""
+                  match = _HEADER.match(self.message)
+                  return match.group("type") if match else None
+
+
+          def _clean(message: str) -> str:
+              """Drop the comment lines git adds to the message being edited."""
+              return "\n".join(line for line in message.splitlines() if not line.startswith("#")).strip()
+
+
+          def check_message(message: str) -> list[str]:
+              """Return the problems of one commit message (empty when it follows the rules)."""
+              text = _clean(message)
+              header = text.splitlines()[0] if text else ""
+              if header.startswith(_EXEMPT_PREFIXES):
+                  return []
+              problems = []
+              if not _HEADER.match(header):
+                  problems.append(
+                      f"first line must look like 'type(scope): summary' with a type among "
+                      f"{', '.join(TYPES)}; got {header!r}"
+                  )
+              if len(header) > MAX_HEADER:
+                  problems.append(f"first line has {len(header)} characters, {MAX_HEADER} at most")
+              if not _REFERENCE.search(text):
+                  problems.append("message must reference its issue on its own line, e.g. 'Refs #12'")
+              return problems
+
+
+          def check_tdd_order(commits: Sequence[Commit]) -> list[str]:
+              """Return a problem for each feat/fix commit that no earlier test commit specifies."""
+              problems = []
+              seen_test = False
+              for commit in commits:
+                  if commit.type == "test":
+                      seen_test = True
+                  elif (
+                      commit.type in _NEEDS_TEST and not seen_test and not _EXEMPTION.search(commit.message)
+                  ):
+                      header = commit.message.splitlines()[0]
+                      problems.append(
+                          f"{commit.sha[:7]} '{header}' comes before any 'test:' commit; write "
+                          "the failing test first, or add a 'TDD-Exempt: reason' trailer"
+                      )
+              return problems
+
+
+          def check_branch(name: str) -> list[str]:
+              """Return the problems of a branch name."""
+              if name.startswith("dependabot/") or _BRANCH.match(name):
+                  return []
+              return [f"branch {name!r} must be named 'type/<issue>-description', e.g. feat/12-onnx-engine"]
+
+
+          def read_commits(repo: Path, revision_range: str) -> list[Commit]:
+              """Read the commits of ``revision_range``, oldest first."""
+              output = subprocess.run(
+                  [
+                      "git",
+                      "-C",
+                      str(repo),
+                      "log",
+                      "--reverse",
+                      "--format=%H%x00%an%x00%B%x1e",
+                      revision_range,
+                  ],
+                  capture_output=True,
+                  text=True,
+                  check=True,
+              ).stdout
+              commits = []
+              for record in output.split("\x1e"):
+                  if record.strip():
+                      sha, author, message = record.strip("\n").split("\x00", 2)
+                      commits.append(Commit(sha, author, message.strip()))
+              return commits
+
+
+          def check_range(repo: Path, revision_range: str) -> list[str]:
+              """Check every human commit of a range, then the TDD order."""
+              commits = [c for c in read_commits(repo, revision_range) if c.author not in _BOTS]
+              problems = [
+                  f"{commit.sha[:7]}: {problem}"
+                  for commit in commits
+                  for problem in check_message(commit.message)
+              ]
+              return problems + check_tdd_order(commits)
+
+
+          def main(argv: Sequence[str] | None = None) -> int:
+              """Command-line entry point; exit code 1 when a rule is broken."""
+              parser = argparse.ArgumentParser(description="Check WillProof Labs commit conventions.")
+              parser.add_argument("message_file", nargs="?", help="commit message file (hook mode)")
+              parser.add_argument("--range", dest="revision_range", help="e.g. origin/main..HEAD")
+              parser.add_argument("--branch", help="branch name to check")
+              parser.add_argument("--repo", type=Path, default=Path.cwd())
+              args = parser.parse_args(argv)
+              problems: list[str] = []
+              if args.message_file:
+                  problems += check_message(Path(args.message_file).read_text(encoding="utf-8"))
+              if args.revision_range:
+                  problems += check_range(args.repo, args.revision_range)
+              if args.branch:
+                  problems += check_branch(args.branch)
+              for problem in problems:
+                  print(f"commit conventions: {problem}", file=sys.stderr)
+              if problems:
+                  print("See CONTRIBUTING.md (section 'Commits and branches').", file=sys.stderr)
+              return 1 if problems else 0
+
+
+          if __name__ == "__main__":
+              sys.exit(main())
+          PY
+          python "$RUNNER_TEMP/commit_conventions.py" --range "$BASE..$HEAD" --branch "$BRANCH"
