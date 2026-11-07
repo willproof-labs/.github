@@ -111,6 +111,21 @@ def test_images_are_pinned_by_digest(path: Path) -> None:
         assert "@sha256:" in image, image
 
 
+SHARED_CALL = re.compile(r"willproof-labs/\.github/\.github/workflows/[\w-]+\.yml@(\S+)(.*)$")
+
+
+@pytest.mark.parametrize("path", all_workflows(), ids=lambda p: p.name)
+def test_shared_calls_pin_a_tag(path: Path) -> None:
+    """Calls of the shared workflows name a tag's SHA, never a branch (#4).
+
+    Covers the templates and the usage comments, which new repositories copy.
+    """
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if match := SHARED_CALL.search(line):
+            assert re.fullmatch(r"[0-9a-f]{40}", match.group(1)), line
+            assert re.fullmatch(r" # v\d+\.\d+\.\d+", match.group(2)), line
+
+
 def test_dependabot_updates_actions_and_packages() -> None:
     """Dependabot proposes updates of the pinned actions and the Python packages (#1)."""
     config = load(ROOT / ".github" / "dependabot.yml")
