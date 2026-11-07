@@ -2,7 +2,7 @@
 # Called by every repository of the organization:
 #   jobs:
 #     conventions:
-#       uses: willproof-labs/.github/.github/workflows/commit-conventions.yml@main
+#       uses: willproof-labs/.github/.github/workflows/commit-conventions.yml@586905a6f3a62b045cd64cb99723a513bc07e7fa # v1.1.0
 # The rules live in tools/commit_conventions.py (see CONTRIBUTING.md); the workflow carries an
 # exact copy, so that it never runs the tools of another version.
 name: Commit conventions

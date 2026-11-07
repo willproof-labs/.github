@@ -4,7 +4,7 @@
 # so update the version and digest by hand from https://github.com/gitleaks/gitleaks/releases.
 #   jobs:
 #     secrets:
-#       uses: willproof-labs/.github/.github/workflows/gitleaks.yml@main
+#       uses: willproof-labs/.github/.github/workflows/gitleaks.yml@586905a6f3a62b045cd64cb99723a513bc07e7fa # v1.1.0
 name: Secret scan
 
 on:
