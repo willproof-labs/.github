@@ -135,14 +135,9 @@ def test_bootstrap_apply_is_idempotent(tmp_path: Path) -> None:
     ] in gh.calls
 
 
-def test_the_lab_backlog_is_valid() -> None:
-    backlog = Backlog.load(ROOT / "project" / "lab-backlog.toml")
-    labels = {label.name for label in load_labels(ROOT / "labels.toml")}
-
-    assert backlog.issues
-    for issue in backlog.issues:
-        assert issue.repo, "lab issues always name their repository"
-        assert set(issue.labels) <= labels, issue.title
+def test_no_backlog_seed_remains_once_its_board_exists() -> None:
+    """#9: a seed is applied once, then deleted; its issues are the backlog."""
+    assert not list(ROOT.glob("project/*.toml"))
 
 
 def test_a_project_can_add_its_own_labels_to_the_shared_ones(tmp_path: Path) -> None:
