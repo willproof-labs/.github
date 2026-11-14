@@ -71,11 +71,9 @@ python -m tools.bootstrap_project --repo willproof-labs/my-product --title my-pr
 
 Chaque produit a son propre tableau. Le tableau **WillProof Lab** ne contient que ce qui
 relie les projets ou concerne le laboratoire lui-même : dépendances, expériences
-transverses, décisions communes. Sa graine est `project/lab-backlog.toml` :
-
-```bash
-python -m tools.bootstrap_project --repo willproof-labs/willproof --title "WillProof Lab" --backlog project/lab-backlog.toml --apply
-```
+transverses, décisions communes, et les issues de ce dépôt. Il a été créé à partir d'une
+graine le 14 novembre 2026, puis la graine a été supprimée : ses issues sont le backlog.
+Ouvrez une nouvelle issue dans le dépôt qu'elle concerne, puis ajoutez-la au tableau.
 
 ## Rendre un produit public
 

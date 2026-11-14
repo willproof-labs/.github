@@ -69,11 +69,9 @@ python -m tools.bootstrap_project --repo willproof-labs/my-product --title my-pr
 
 Each product has its own board. The **WillProof Lab** board only holds what links
 projects or concerns the lab itself: dependencies, cross-project experiments, shared
-decisions. Its seed is `project/lab-backlog.toml`:
-
-```bash
-python -m tools.bootstrap_project --repo willproof-labs/willproof --title "WillProof Lab" --backlog project/lab-backlog.toml --apply
-```
+decisions, and the issues of this repository. It was created from a seed on 14 November
+2026, and the seed was then deleted: its issues are the backlog. Open a new issue in the
+repository it concerns, then add it to the board.
 
 ## Going public
 

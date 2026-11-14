@@ -1,7 +1,7 @@
 """Create a GitHub project (board) with its milestones and issues from a backlog file.
 
-Each product keeps the seed of its backlog in ``.github/project/backlog.toml``; the lab
-board's seed is ``project/lab-backlog.toml`` in this repository. Issues go to the main
+Each product keeps the seed of its backlog in ``.github/project/backlog.toml`` until its
+board exists; the seed is then deleted, and the issues are the backlog. Issues go to the main
 repository unless they name another one (``repo = "owner/name"``), so one board can
 gather issues of several repositories. Labels must exist first: apply them with
 ``tools.setup_repository``.
