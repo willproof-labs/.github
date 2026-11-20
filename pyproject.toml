@@ -15,7 +15,7 @@ dev = [
     "ruff>=0.16,<0.17",
     "mypy>=2,<3",
     "pyyaml>=6,<7",       # tests that validate the workflow and issue form files
-    "types-PyYAML>=6",
+    "types-PyYAML>=6.0.12.20261113",
 ]
 
 [build-system]
