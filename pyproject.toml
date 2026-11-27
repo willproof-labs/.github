@@ -14,7 +14,7 @@ dev = [
     "pytest>=9,<10",
     "ruff>=0.16,<0.17",
     "mypy>=2,<3",
-    "pyyaml>=6,<7",       # tests that validate the workflow and issue form files
+    "pyyaml>=6.0.4,<7",       # tests that validate the workflow and issue form files
     "types-PyYAML>=6",
 ]
 
